@@ -26,7 +26,6 @@ object Network {
 
     val BASE_URL: String = BuildConfig.BASE_URL
 
-    /** 저장된 액세스 토큰을 Authorization 헤더로 부착한다. */
     /**
      * 리프레시 토큰마저 만료돼 세션을 복구할 수 없을 때 호출된다.
      * UI(예: MainActivity)에서 로그인 화면으로 보내도록 설정한다.

@@ -6,19 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.example.ptmanageremployee.data.Extras
 import com.example.ptmanageremployee.data.Network
 import com.example.ptmanageremployee.data.SwapApplicationDto
 import com.example.ptmanageremployee.data.SwapRequestDto
 import com.example.ptmanageremployee.data.TokenStore
-import com.example.ptmanageremployee.data.shiftTimeRange
+import com.example.ptmanageremployee.data.shiftTitle
+import com.example.ptmanageremployee.data.swapStatusBadge
+import com.example.ptmanageremployee.data.swapStatusLabel
 import com.example.ptmanageremployee.data.toUserMessage
-import kotlinx.coroutines.launch
 
 /**
  * 직원 대타 화면. 지원 가능(open)·내 요청(mine)·내 지원(applications) 3개 관점을
@@ -47,9 +46,9 @@ class SwapListActivity : AppCompatActivity() {
             val active = when (sel) { Tab.OPEN -> chipOpen; Tab.MINE -> chipMine; Tab.APPLIED -> chipApplied }
             chips.forEach { chip ->
                 val on = chip === active
-                chip.setBackgroundResource(if (on) R.drawable.bg_pill_active else R.drawable.bg_pill)
+                chip.setBackgroundResource(if (on) R.drawable.bg_chip_selected else R.drawable.bg_chip_outline)
                 chip.setTextColor(
-                    ContextCompat.getColor(this, if (on) R.color.white else R.color.text_tertiary)
+                    ContextCompat.getColor(this, if (on) R.color.brand_blue else R.color.text_tertiary)
                 )
             }
             load()
@@ -69,26 +68,20 @@ class SwapListActivity : AppCompatActivity() {
         val workplaceId = TokenStore.workplaceId
         val container = findViewById<LinearLayout>(R.id.swap_container)
         val empty = findViewById<TextView>(R.id.tv_swap_empty)
-        for (i in container.childCount - 1 downTo 0) {
-            if (container.getChildAt(i).id != R.id.tv_swap_empty) container.removeViewAt(i)
-        }
+        container.removeAllExcept(R.id.tv_swap_empty)
         if (workplaceId <= 0) {
             empty.visibility = View.VISIBLE
             return
         }
-        lifecycleScope.launch {
-            try {
-                when (tab) {
-                    Tab.OPEN -> renderRequests(
-                        Network.api.getSwapRequests(workplaceId, view = "open"), forOpen = true,
-                    )
-                    Tab.MINE -> renderRequests(
-                        Network.api.getSwapRequests(workplaceId, view = "mine"), forOpen = false,
-                    )
-                    Tab.APPLIED -> renderApplications(Network.api.getMySwapApplications())
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this@SwapListActivity, e.toUserMessage(), Toast.LENGTH_SHORT).show()
+        launchApi {
+            when (tab) {
+                Tab.OPEN -> renderRequests(
+                    Network.api.getSwapRequests(workplaceId, view = "open"), forOpen = true,
+                )
+                Tab.MINE -> renderRequests(
+                    Network.api.getSwapRequests(workplaceId, view = "mine"), forOpen = false,
+                )
+                Tab.APPLIED -> renderApplications(Network.api.getMySwapApplications())
             }
         }
     }
@@ -108,8 +101,8 @@ class SwapListActivity : AppCompatActivity() {
                 badge.text = "지원 가능"
                 badge.setBackgroundResource(R.drawable.bg_badge_pending)
             } else {
-                badge.text = statusLabel(req.status)
-                badge.setBackgroundResource(statusBadge(req.status))
+                badge.text = swapStatusLabel(req.status)
+                badge.setBackgroundResource(swapStatusBadge(req.status))
             }
             row.setOnClickListener { openDetail(req.id) }
             container.addView(row)
@@ -125,10 +118,10 @@ class SwapListActivity : AppCompatActivity() {
         list.forEach { app ->
             val row = inflater.inflate(R.layout.item_swap, container, false)
             row.findViewById<TextView>(R.id.tv_title).text = "대타 지원 #${app.swapRequestId ?: app.id}"
-            row.findViewById<TextView>(R.id.tv_sub).text = "지원 상태 · ${statusLabel(app.status)}"
+            row.findViewById<TextView>(R.id.tv_sub).text = "지원 상태 · ${swapStatusLabel(app.status)}"
             val badge = row.findViewById<TextView>(R.id.tv_badge)
-            badge.text = statusLabel(app.status)
-            badge.setBackgroundResource(statusBadge(app.status))
+            badge.text = swapStatusLabel(app.status)
+            badge.setBackgroundResource(swapStatusBadge(app.status))
             app.swapRequestId?.let { id -> row.setOnClickListener { openDetail(id) } }
             container.addView(row)
         }
@@ -139,27 +132,5 @@ class SwapListActivity : AppCompatActivity() {
             Intent(this, SwapDetailActivity::class.java)
                 .putExtra(Extras.SWAP_REQUEST_ID, swapRequestId)
         )
-    }
-
-    private fun shiftTitle(req: SwapRequestDto): String {
-        val shift = req.shift
-        return if (shift != null) {
-            "${shift.workDate ?: ""} ${shiftTimeRange(shift.startTime, shift.endTime)}".trim()
-        } else {
-            "대타요청 #${req.id}"
-        }
-    }
-
-    private fun statusLabel(status: String?): String = when (status) {
-        "PENDING" -> "대기 중"
-        "APPROVED" -> "승인"
-        "REJECTED" -> "거절"
-        else -> status ?: ""
-    }
-
-    private fun statusBadge(status: String?): Int = when (status) {
-        "APPROVED" -> R.drawable.bg_badge_approved
-        "REJECTED" -> R.drawable.bg_badge_rejected
-        else -> R.drawable.bg_badge_pending
     }
 }

@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Toss-style palette extracted from the wireframe -->
-    <color name="brand_blue">#3182F6</color>
-    <color name="brand_blue_light">#EEF4FF</color>
-    <color name="brand_blue_border">#D6E4FF</color>
-    <color name="brand_blue_bg">#F7FAFF</color>
-    <color name="brand_blue_chip">#DBE7FF</color>
+    <!-- Apple-inspired single-accent palette from DESIGN.md. -->
+    <color name="brand_blue">#0066CC</color>
+    <color name="brand_blue_focus">#0071E3</color>
+    <color name="brand_blue_on_dark">#2997FF</color>
+    <color name="brand_blue_light">#F5F5F7</color>
+    <color name="brand_blue_border">#E0E0E0</color>
+    <color name="brand_blue_bg">#FAFAFC</color>
+    <color name="brand_blue_chip">#F5F5F7</color>
 
-    <color name="ink">#1F1F1F</color>
-    <color name="text_primary">#222222</color>
-    <color name="text_secondary">#888888</color>
-    <color name="text_tertiary">#999999</color>
-    <color name="text_hint">#BBBBBB</color>
-    <color name="text_muted">#C0C0C0</color>
+    <color name="ink">#1D1D1F</color>
+    <color name="text_primary">#1D1D1F</color>
+    <color name="text_secondary">#333333</color>
+    <color name="text_tertiary">#7A7A7A</color>
+    <color name="text_hint">#7A7A7A</color>
+    <color name="text_muted">#CCCCCC</color>
 
-    <color name="border">#ECECEC</color>
+    <color name="border">#E0E0E0</color>
     <color name="border_light">#F0F0F0</color>
-    <color name="divider">#F1F1F1</color>
-    <color name="input_border">#E2E2E2</color>
+    <color name="divider">#F0F0F0</color>
+    <color name="input_border">#E0E0E0</color>
 
     <color name="warn_orange">#F08C00</color>
     <color name="warn_bg">#FFF8EE</color>
@@ -28,7 +30,7 @@
     <color name="accent_red">#E03131</color>
     <color name="weekend_red">#FF0066</color>
     <color name="weekend_blue">#2F6BFF</color>
-    <color name="surface_gray">#F7F8FA</color>
+    <color name="surface_gray">#F5F5F7</color>
 
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>

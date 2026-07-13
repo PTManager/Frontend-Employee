@@ -7,17 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.example.ptmanageremployee.data.Extras
 import com.example.ptmanageremployee.data.Network
 import com.example.ptmanageremployee.data.scheduleDateLabel
 import com.example.ptmanageremployee.data.shiftTimeRange
 import com.example.ptmanageremployee.data.toUserMessage
 import com.example.ptmanageremployee.data.weekRangeLabel
-import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -52,7 +49,7 @@ class ScheduleFragment : Fragment() {
         }
         // 대타요청은 근무 정보(ShiftDetailActivity)의 '대타요청하기', 대타 목록은 소통 탭에서 진행한다.
         view.findViewById<View>(R.id.btn_availability).setOnClickListener {
-            Toast.makeText(requireContext(), "근무 가능 시간 등록은 준비 중이에요", Toast.LENGTH_SHORT).show()
+            toast("근무 가능 시간 등록은 준비 중이에요")
         }
         view.findViewById<View>(R.id.btn_prev_week).setOnClickListener { shiftWeek(view, -7) }
         view.findViewById<View>(R.id.btn_next_week).setOnClickListener { shiftWeek(view, 7) }
@@ -112,31 +109,27 @@ class ScheduleFragment : Fragment() {
         val timeView = view.findViewById<TextView>(R.id.tv_my_shift_time)
         val subView = view.findViewById<TextView>(R.id.tv_my_shift_sub)
         view.findViewById<TextView>(R.id.tv_schedule_date).text = scheduleDateLabel(selectedDate)
-        lifecycleScope.launch {
-            try {
-                // 선택한 날짜의 내 근무를 조회한다.
-                val next = Network.api.getShifts(employeeId = "me", from = date, to = date)
-                    .sortedBy { it.startTime }
-                    .firstOrNull()
-                if (next == null) {
-                    card.visibility = View.GONE
-                    empty.visibility = View.VISIBLE
-                    nextShiftId = -1
-                } else {
-                    card.visibility = View.VISIBLE
-                    empty.visibility = View.GONE
-                    nextShiftId = next.id
-                    timeView.text = shiftTimeRange(next.startTime, next.endTime)
-                    val checkedIn = next.checkedInAt != null
-                    subView.text = if (checkedIn) "출근 완료" else "출근 전"
-                    val bg = if (checkedIn) R.color.cat_handover_bg else R.color.warn_bg
-                    val fg = if (checkedIn) R.color.cat_handover else R.color.warn_orange
-                    subView.backgroundTintList = ColorStateList.valueOf(
-                        ContextCompat.getColor(requireContext(), bg))
-                    subView.setTextColor(ContextCompat.getColor(requireContext(), fg))
-                }
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), e.toUserMessage(), Toast.LENGTH_SHORT).show()
+        launchApi {
+            // 선택한 날짜의 내 근무를 조회한다.
+            val next = Network.api.getShifts(employeeId = "me", from = date, to = date)
+                .sortedBy { it.startTime }
+                .firstOrNull()
+            if (next == null) {
+                card.visibility = View.GONE
+                empty.visibility = View.VISIBLE
+                nextShiftId = -1
+            } else {
+                card.visibility = View.VISIBLE
+                empty.visibility = View.GONE
+                nextShiftId = next.id
+                timeView.text = shiftTimeRange(next.startTime, next.endTime)
+                val checkedIn = next.checkedInAt != null
+                subView.text = if (checkedIn) "출근 완료" else "출근 전"
+                val bg = if (checkedIn) R.color.cat_handover_bg else R.color.warn_bg
+                val fg = if (checkedIn) R.color.cat_handover else R.color.warn_orange
+                subView.backgroundTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), bg))
+                subView.setTextColor(ContextCompat.getColor(requireContext(), fg))
             }
         }
     }

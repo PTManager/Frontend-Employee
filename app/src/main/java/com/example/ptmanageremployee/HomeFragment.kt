@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.ptmanageremployee.data.Extras
@@ -190,25 +189,21 @@ class HomeFragment : Fragment() {
         val timeView = view.findViewById<TextView>(R.id.tv_today_time)
         val withView = view.findViewById<TextView>(R.id.tv_today_with)
         val chevronView = view.findViewById<View>(R.id.tv_today_chevron)
-        lifecycleScope.launch {
-            try {
-                val shifts = Network.api.getShifts(employeeId = "me", from = today, to = today)
-                val shift: ShiftDto? = shifts.firstOrNull()
-                if (shift == null) {
-                    labelView.text = getString(R.string.home_no_shift_label)
-                    timeView.text = getString(R.string.home_no_shift_time)
-                    withView.text = getString(R.string.home_no_shift_desc)
-                    todayShiftId = -1
-                    chevronView.visibility = View.GONE
-                } else {
-                    todayShiftId = shift.id
-                    labelView.text = getString(R.string.home_today_shift)
-                    timeView.text = shiftTimeRange(shift.startTime, shift.endTime)
-                    withView.text = shift.checkedInAt?.let { getString(R.string.home_checkin_done) } ?: getString(R.string.home_before_checkin)
-                    chevronView.visibility = View.VISIBLE
-                }
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), e.toUserMessage(), Toast.LENGTH_SHORT).show()
+        launchApi {
+            val shifts = Network.api.getShifts(employeeId = "me", from = today, to = today)
+            val shift: ShiftDto? = shifts.firstOrNull()
+            if (shift == null) {
+                labelView.text = getString(R.string.home_no_shift_label)
+                timeView.text = getString(R.string.home_no_shift_time)
+                withView.text = getString(R.string.home_no_shift_desc)
+                todayShiftId = -1
+                chevronView.visibility = View.GONE
+            } else {
+                todayShiftId = shift.id
+                labelView.text = getString(R.string.home_today_shift)
+                timeView.text = shiftTimeRange(shift.startTime, shift.endTime)
+                withView.text = shift.checkedInAt?.let { getString(R.string.home_checkin_done) } ?: getString(R.string.home_before_checkin)
+                chevronView.visibility = View.VISIBLE
             }
         }
     }

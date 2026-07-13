@@ -1,5 +1,7 @@
 package com.example.ptmanageremployee.data
 
+import com.example.ptmanageremployee.R
+
 /** Intent 로 화면 간 전달하는 키 모음. */
 object Extras {
     const val SHIFT_ID = "extra_shift_id"
@@ -69,4 +71,43 @@ fun attendanceLabel(status: String?): String = when (status) {
     "ABSENT" -> "결근"
     "SCHEDULED" -> "예정"
     else -> status ?: ""
+}
+
+/** 공지 카드 메타: "작성자 · yyyy-MM-dd" */
+fun noticeMeta(notice: NoticeDto): String {
+    val author = notice.authorName ?: "사장님"
+    val date = notice.createdAt?.take(10) ?: ""
+    return listOf(author, date).filter { it.isNotBlank() }.joinToString(" · ")
+}
+
+/** 인수인계 카드 메타: "작성자 · yyyy-MM-dd" */
+fun handoverMeta(note: HandoverDto): String {
+    val author = note.authorName ?: "작성자"
+    val date = note.createdAt?.take(10) ?: ""
+    return listOf(author, date).filter { it.isNotBlank() }.joinToString(" · ")
+}
+
+/** 대타 요청 카드 제목: "yyyy-MM-dd 18:00 – 23:00" (근무 정보 없으면 "대타요청 #id"). */
+fun shiftTitle(req: SwapRequestDto): String {
+    val shift = req.shift
+    return if (shift != null) {
+        "${shift.workDate ?: ""} ${shiftTimeRange(shift.startTime, shift.endTime)}".trim()
+    } else {
+        "대타요청 #${req.id}"
+    }
+}
+
+/** 대타 상태 한글 라벨. */
+fun swapStatusLabel(status: String?): String = when (status) {
+    "PENDING" -> "대기 중"
+    "APPROVED" -> "승인"
+    "REJECTED" -> "거절"
+    else -> status ?: ""
+}
+
+/** 대타 상태 배지 배경. */
+fun swapStatusBadge(status: String?): Int = when (status) {
+    "APPROVED" -> R.drawable.bg_badge_approved
+    "REJECTED" -> R.drawable.bg_badge_rejected
+    else -> R.drawable.bg_badge_pending
 }

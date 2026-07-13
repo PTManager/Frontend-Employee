@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -38,7 +37,7 @@ class SubRequestActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_cancel).setOnClickListener { finish() }
         findViewById<View>(R.id.btn_send).setOnClickListener { btn ->
             if (shiftId <= 0) {
-                Toast.makeText(this, "대상 근무가 없습니다.", Toast.LENGTH_SHORT).show()
+                toast("대상 근무가 없습니다.")
                 return@setOnClickListener
             }
             val reasonText = findViewById<EditText>(R.id.input_reason).text.toString().trim()
@@ -47,10 +46,10 @@ class SubRequestActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     Network.api.createSwapRequest(CreateSwapRequest(shiftId, reason))
-                    Toast.makeText(this@SubRequestActivity, "대타요청을 보냈어요", Toast.LENGTH_SHORT).show()
+                    toast("대타요청을 보냈어요")
                     finish()
                 } catch (e: Exception) {
-                    Toast.makeText(this@SubRequestActivity, e.toUserMessage(), Toast.LENGTH_SHORT).show()
+                    toast(e.toUserMessage())
                     btn.isEnabled = true
                 }
             }

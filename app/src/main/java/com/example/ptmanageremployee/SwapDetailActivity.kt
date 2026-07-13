@@ -3,7 +3,6 @@ package com.example.ptmanageremployee
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -29,7 +28,7 @@ class SwapDetailActivity : AppCompatActivity() {
 
         swapRequestId = intent.getLongExtra(Extras.SWAP_REQUEST_ID, -1)
         if (swapRequestId <= 0) {
-            Toast.makeText(this, "대타요청을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+            toast("대타요청을 찾을 수 없습니다.")
             finish()
             return
         }
@@ -42,7 +41,7 @@ class SwapDetailActivity : AppCompatActivity() {
                 val detail = Network.api.getSwapRequest(swapRequestId)
                 bind(detail)
             } catch (e: Exception) {
-                Toast.makeText(this@SwapDetailActivity, e.toUserMessage(), Toast.LENGTH_SHORT).show()
+                toast(e.toUserMessage())
                 finish()
             }
         }
@@ -84,10 +83,10 @@ class SwapDetailActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 Network.api.applyToSwap(swapRequestId)
-                Toast.makeText(this@SwapDetailActivity, "대타에 지원했어요", Toast.LENGTH_SHORT).show()
+                toast("대타에 지원했어요")
                 load()
             } catch (e: Exception) {
-                Toast.makeText(this@SwapDetailActivity, e.toUserMessage(), Toast.LENGTH_SHORT).show()
+                toast(e.toUserMessage())
                 btn.isEnabled = true
             }
         }
